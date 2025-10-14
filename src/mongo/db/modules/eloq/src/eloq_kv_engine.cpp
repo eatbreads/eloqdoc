@@ -190,8 +190,8 @@ static void configureEloqStore(EloqDS::EloqStoreConfig& eloq_store_config,
         ? eloqGlobalOptions.eloqStoreGcThreads
         : 0;
 
-    eloq_store_config.eloqstore_configs_.rclone_threads =
-        eloqGlobalOptions.eloqStoreCloudWorkerCount;
+    //eloq_store_config.eloqstore_configs_.rclone_threads =
+    //    eloqGlobalOptions.eloqStoreCloudWorkerCount;
 
     eloq_store_config.eloqstore_configs_.data_page_restart_interval =
         eloqGlobalOptions.eloqStoreDataPageRestartInterval;
