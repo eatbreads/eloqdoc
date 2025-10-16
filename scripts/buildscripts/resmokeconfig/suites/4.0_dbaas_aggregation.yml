@@ -1,0 +1,33 @@
+test_kind: js_test
+
+selector:
+  roots:
+  - tests/jstests/aggregation/**/*.js
+  exclude_files:
+  - tests/jstests/aggregation/extras/*.js
+  - tests/jstests/aggregation/data/*.js
+  - tests/jstests/aggregation/sources/lookup/lookup_absorb_match.js
+  # crash
+  - tests/jstests/aggregation/bugs/match.js
+  - tests/jstests/aggregation/bugs/server10530.js
+  - tests/jstests/aggregation/bugs/server18427.js
+  - tests/jstests/aggregation/bugs/server22580.js
+  - tests/jstests/aggregation/bugs/server26462.js
+  - tests/jstests/aggregation/bugs/server3253.js
+  - tests/jstests/aggregation/sources/graphLookup/error.js
+  - tests/jstests/aggregation/sources/match/expr_match.js
+  - tests/jstests/aggregation/sources/out/required_last_position.js
+  - tests/jstests/aggregation/sources/sort/collation_sort_japanese.js
+  exclude_with_any_tags:
+  - assumes_superuser_permissions
+  - requires_eval_command
+  - requires_spawning_own_processes
+  - uses_multiple_connections
+  - uses_testing_only_commands
+  - requires_sharding
+
+executor:
+  config:
+    shell_options:
+      readMode: commands
+      # ssl: ''

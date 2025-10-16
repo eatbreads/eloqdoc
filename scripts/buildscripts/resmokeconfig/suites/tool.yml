@@ -1,0 +1,17 @@
+test_kind: js_test
+
+selector:
+  roots:
+  - tests/jstests/tool/*.js
+  exclude_files:
+  # Skip until TOOLS-1371 is resolved.
+  - tests/jstests/tool/dumprestore_auth.js
+  - tests/jstests/tool/dumprestore_auth2.js
+  - tests/jstests/tool/dumprestore_auth3.js
+
+# Tool tests start their own mongod's.
+executor:
+  config:
+    shell_options:
+      nodb: ''
+      readMode: commands

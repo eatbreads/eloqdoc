@@ -1,0 +1,182 @@
+test_kind: js_test
+
+selector:
+  roots:
+  - tests/jstests/sharding/*.js
+  exclude_files:
+  # Auth tests require authentication on the stepdown thread's connection
+  - tests/jstests/sharding/auth*.js
+  - tests/jstests/sharding/cleanup_orphaned_auth.js
+  - tests/jstests/sharding/localhostAuthBypass.js
+  - tests/jstests/sharding/kill_sessions.js
+  - tests/jstests/sharding/mongos_rs_auth_shard_failure_tolerance.js
+  - tests/jstests/sharding/mrShardedOutputAuth.js
+  - tests/jstests/sharding/aggregation_currentop.js
+  - tests/jstests/sharding/advance_cluster_time_action_type.js
+  - tests/jstests/sharding/mongod_returns_no_cluster_time_without_keys.js
+  # Count/write/aggregate/group commands against the config shard do not support retries yet
+  - tests/jstests/sharding/addshard1.js
+  - tests/jstests/sharding/addshard2.js
+  - tests/jstests/sharding/autosplit.js
+  - tests/jstests/sharding/auto_rebalance_parallel.js
+  - tests/jstests/sharding/auto_rebalance_parallel_replica_sets.js
+  - tests/jstests/sharding/autosplit_heuristics.js
+  - tests/jstests/sharding/basic_drop_coll.js
+  - tests/jstests/sharding/basic_merge.js
+  - tests/jstests/sharding/count1.js
+  - tests/jstests/sharding/count2.js
+  - tests/jstests/sharding/cursor1.js
+  - tests/jstests/sharding/diffservers1.js
+  - tests/jstests/sharding/disable_autosplit.js
+  - tests/jstests/sharding/drop_sharded_db.js
+  - tests/jstests/sharding/findandmodify1.js
+  - tests/jstests/sharding/findandmodify2.js
+  - tests/jstests/sharding/geo_near_sharded.js
+  - tests/jstests/sharding/hash_basic.js
+  - tests/jstests/sharding/hash_shard1.js
+  - tests/jstests/sharding/hash_shard_non_empty.js
+  - tests/jstests/sharding/hash_shard_num_chunks.js
+  - tests/jstests/sharding/hash_single_shard.js
+  - tests/jstests/sharding/key_many.js
+  - tests/jstests/sharding/key_string.js
+  - tests/jstests/sharding/large_chunk.js
+  - tests/jstests/sharding/limit_push.js
+  - tests/jstests/sharding/migrateBig_balancer.js
+  - tests/jstests/sharding/move_chunk_basic.js
+  - tests/jstests/sharding/movePrimary1.js
+  - tests/jstests/sharding/mrShardedOutput.js
+  - tests/jstests/sharding/names.js
+  - tests/jstests/sharding/prefix_shard_key.js
+  - tests/jstests/sharding/presplit.js
+  - tests/jstests/sharding/query_config.js
+  - tests/jstests/sharding/remove1.js
+  - tests/jstests/sharding/rename_across_mongos.js
+  - tests/jstests/sharding/shard1.js
+  - tests/jstests/sharding/shard2.js
+  - tests/jstests/sharding/shard3.js
+  - tests/jstests/sharding/shard_collection_basic.js
+  - tests/jstests/sharding/shard_existing_coll_chunk_count.js
+  - tests/jstests/sharding/sharding_balance1.js
+  - tests/jstests/sharding/sharding_balance2.js
+  - tests/jstests/sharding/sharding_balance3.js
+  - tests/jstests/sharding/sharding_balance4.js
+  - tests/jstests/sharding/sharding_migrate_cursor1.js
+  - tests/jstests/sharding/tag_range.js
+  - tests/jstests/sharding/top_chunk_autosplit.js
+  - tests/jstests/sharding/count_config_servers.js
+  - tests/jstests/sharding/conf_server_write_concern_metadata.js
+  - tests/jstests/sharding/split_large_key.js
+  - tests/jstests/sharding/balancer_window.js
+  # No retries on direct writes to the config/admin databases on the config servers
+  - tests/jstests/sharding/database_versioning_safe_secondary_reads.js
+  - tests/jstests/sharding/listDatabases.js
+  - tests/jstests/sharding/bulk_insert.js
+  - tests/jstests/sharding/printShardingStatus.js
+  - tests/jstests/sharding/refresh_sessions.js
+  # Balancer writes (direct write to config database with no retries)
+  - tests/jstests/sharding/convert_to_and_from_sharded.js
+  - tests/jstests/sharding/remove2.js
+  - tests/jstests/sharding/autosplit_with_balancer.js
+  - tests/jstests/sharding/features3.js
+  - tests/jstests/sharding/in_memory_sort_limit.js
+  - tests/jstests/sharding/parallel.js
+  - tests/jstests/sharding/migrateBig.js
+  - tests/jstests/sharding/sharding_rs1.js
+  - tests/jstests/sharding/move_primary_fails_without_database_version.js
+  # Calls the config server primary directly (not through mongos)
+  - tests/jstests/sharding/configsvr_metadata_commands_require_majority_write_concern.js
+  - tests/jstests/sharding/min_optime_recovery_on_successful_move_chunk_commit.js
+  - tests/jstests/sharding/read_after_optime.js
+  - tests/jstests/sharding/server_status.js
+  - tests/jstests/sharding/drop_configdb.js
+  - tests/jstests/sharding/shard_identity_config_update.js
+  - tests/jstests/sharding/mongos_does_not_gossip_logical_time_without_keys.js
+  - tests/jstests/sharding/key_rotation.js
+  - tests/jstests/sharding/keys_rotation_interval_sec.js
+  - tests/jstests/sharding/move_chunk_find_and_modify_with_write_retryability.js
+  - tests/jstests/sharding/move_chunk_insert_with_write_retryability.js
+  - tests/jstests/sharding/move_chunk_remove_with_write_retryability.js
+  - tests/jstests/sharding/move_chunk_update_with_write_retryability.js
+  # Runs setShardVersion/getShardVersion against the config server and we don't support retries
+  # for this command
+  - tests/jstests/sharding/major_version_check.js
+  - tests/jstests/sharding/ssv_config_check.js
+  # Runs replSetGetStatus -- via awaitLastOpCommitted -- directly against the config server:
+  # retries aren't supported.
+  - tests/jstests/sharding/coll_epoch_test1.js
+  - tests/jstests/sharding/move_stale_mongos.js
+  - tests/jstests/sharding/shard4.js
+  - tests/jstests/sharding/shard5.js
+  - tests/jstests/sharding/split_stale_mongos.js
+  - tests/jstests/sharding/stale_mongos_updates_and_removes.js
+  - tests/jstests/sharding/zero_shard_version.js
+  # Already stop or blackholes the primary of the CSRS config shard
+  - tests/jstests/sharding/all_shard_and_config_hosts_brought_down_one_by_one.js
+  - tests/jstests/sharding/all_config_servers_blackholed_from_mongos.js
+  - tests/jstests/sharding/batch_write_command_sharded.js
+  - tests/jstests/sharding/config_rs_no_primary.js
+  - tests/jstests/sharding/startup_with_all_configs_down.js
+  - tests/jstests/sharding/lagged_config_secondary.js
+  - tests/jstests/sharding/autodiscover_config_rs_from_secondary.js
+  - tests/jstests/sharding/rs_stepdown_and_pooling.js
+  - tests/jstests/sharding/mongos_no_replica_set_refresh.js
+  - tests/jstests/sharding/movechunk_interrupt_at_primary_stepdown.js
+  - tests/jstests/sharding/primary_config_server_blackholed_from_mongos.js
+  # A failpoint is set on config primary, so stepping down brings up a primary without the failpoint
+  # and breaks testing.
+  - tests/jstests/sharding/crash_mongos_against_upgraded_cluster.js
+  # Nothing is affected by config server step down
+  - tests/jstests/sharding/basic_sharding_params.js
+  # ShardingTest is never used, so continuous step down thread never starts
+  - tests/jstests/sharding/config_rs_change.js
+  - tests/jstests/sharding/empty_cluster_init.js
+  # Test runs really slow with the primary continuously stepping down
+  - tests/jstests/sharding/zbigMapReduce.js
+  # Temporarily blacklisted until more robust
+  - tests/jstests/sharding/cleanup_orphaned_cmd_during_movechunk_hashed.js
+  - tests/jstests/sharding/cleanup_orphaned_cmd_during_movechunk.js
+  # Expects same secondaries for entire test
+  - tests/jstests/sharding/commands_that_write_accept_wc_configRS.js
+  - tests/jstests/sharding/commands_that_write_accept_wc_shards.js
+  - tests/jstests/sharding/move_chunk_wc.js
+  # Expects that connections to all shards/config servers will never close
+  - tests/jstests/sharding/shard6.js
+  # Stepping down the primary can make the balancer rerun a migration that was designed to fail
+  # earlier, but can potentially pass or have different side effects on the second try
+  - tests/jstests/sharding/migration_ignore_interrupts_1.js
+  - tests/jstests/sharding/migration_sets_fromMigrate_flag.js
+  # Stepping down the config can cause moveChunks stopped on shards via killOp to be restarted.
+  - tests/jstests/sharding/migration_ignore_interrupts_3.js
+  - tests/jstests/sharding/migration_ignore_interrupts_4.js
+  # listCollections is not retryable
+  - tests/jstests/sharding/sessions_collection_auto_healing.js
+  # shardCollection is not retryable
+  - tests/jstests/sharding/shard_config_db_collections.js
+  # creates collection, does movePrimary, then shards the collection and moves a chunk to the old
+  # primary (SERVER-31909)
+  - tests/jstests/sharding/mongos_validate_writes.js
+  # Test expects a specific chunk distribution after shardCollection and it can be broken when
+  # a step down occurs.
+  - tests/jstests/sharding/regex_targeting.js
+  # Sets a failpoint on a config server secondary.
+  - tests/jstests/sharding/shards_and_config_return_last_committed_optime.js
+  # Calls movePrimary after data has been inserted into an unsharded collection, so will fail if
+  # a stepdown causes the command to be sent again.
+  - tests/jstests/sharding/move_primary_clone_test.js
+  - tests/jstests/sharding/mongos_validate_writes.js
+  - tests/jstests/sharding/movePrimary1.js
+  # Checks for an exact number of matching entries in the profiler, which will fail if a command
+  # gets retried due to a stepdown.
+  - tests/jstests/sharding/database_and_shard_versioning_all_commands.js
+  # Enable when SERVER-36634 is fixed.
+  - tests/jstests/sharding/shard_collection_existing_zones.js
+
+executor:
+  config:
+    shell_options:
+      global_vars:
+        TestData:
+          skipCheckingCatalogCacheConsistencyWithShardingCatalog: true
+      eval: "load('tests/jstests/libs/override_methods/sharding_continuous_config_stepdown.js');"
+      nodb: ''
+      readMode: commands

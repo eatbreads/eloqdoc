@@ -20,7 +20,7 @@ import SCons
 # we are to avoid bulk loading all tools in the DefaultEnvironment.
 DefaultEnvironment(tools=[])
 
-# These come from site_scons/mongo. Import these things
+# These come from scons/mongo. Import these things
 # after calling DefaultEnvironment, for the sake of paranoia.
 import mongo
 import mongo.platform as mongo_platform
@@ -29,6 +29,8 @@ import mongo.generators as mongo_generators
 
 EnsurePythonVersion(2, 7)
 EnsureSConsVersion(2, 5)
+
+sys.path.append("scripts")
 
 from buildscripts import utils
 from buildscripts import moduleconfig
@@ -193,7 +195,7 @@ add_option('js-engine',
 add_option('server-js',
     choices=['on', 'off'],
     default='on',
-    help='Build mongod without JavaScript support',
+    help='Build eloqdoc without JavaScript support',
     type='choice',
 )
 
@@ -703,7 +705,7 @@ env_vars.Add('ICERUN',
 
 env_vars.Add('ICECC_CREATE_ENV',
     help='Tell SCons where icecc-create-env tool is',
-    default='buildscripts/icecc_create_env')
+    default='scripts/buildscripts/icecc_create_env')
 
 env_vars.Add('ICECC_SCHEDULER',
     help='Tell ICECC where the sceduler daemon is running')
@@ -900,7 +902,7 @@ printLocalInfo()
 
 boostLibs = [ "filesystem", "program_options", "system", "iostreams" ]
 
-onlyServer = len( COMMAND_LINE_TARGETS ) == 0 or ( len( COMMAND_LINE_TARGETS ) == 1 and str( COMMAND_LINE_TARGETS[0] ) in [ "mongod" , "mongos" , "test" ] )
+onlyServer = len( COMMAND_LINE_TARGETS ) == 0 or ( len( COMMAND_LINE_TARGETS ) == 1 and str( COMMAND_LINE_TARGETS[0] ) in [ "eloqdoc", "mongod" , "mongos" , "test" ] )
 
 releaseBuild = has_option("release")
 
@@ -1868,7 +1870,7 @@ if env['TARGET_ARCH'] == 'i386':
 # Needed for auth tests since key files are stored in git with mode 644.
 if not env.TargetOSIs('windows'):
     for keysuffix in [ "1" , "2" ]:
-        keyfile = "jstests/libs/key%s" % keysuffix
+        keyfile = "tests/jstests/libs/key%s" % keysuffix
         os.chmod( keyfile , stat.S_IWUSR|stat.S_IRUSR )
 
 # boostSuffixList is used when using system boost to select a search sequence
@@ -3495,7 +3497,7 @@ env.AddMethod(env_windows_resource_file, 'WindowsResourceFile')
 
 def doLint( env , target , source ):
     import buildscripts.eslint
-    if not buildscripts.eslint.lint(None, dirmode=True, glob=["jstests/", "src/mongo/"]):
+    if not buildscripts.eslint.lint(None, dirmode=True, glob=["tests/jstests/", "src/mongo/"]):
         raise Exception("ESLint errors")
 
     import buildscripts.clang_format
@@ -3604,7 +3606,7 @@ compileDb = env.Alias("compiledb", compileCommands)
 vcxprojFile = env.Command(
     "mongodb.vcxproj",
     compileCommands,
-    r"$PYTHON buildscripts\make_vcxproj.py mongodb")
+    r"$PYTHON scripts\buildscripts\make_vcxproj.py mongodb")
 vcxproj = env.Alias("vcxproj", vcxprojFile)
 
 env.Alias("distsrc-tar", env.DistSrc("mongodb-src-${MONGO_VERSION}.tar"))
@@ -3678,7 +3680,7 @@ env.NoCache(env.FindInstalledFiles())
 cachePrune = env.Command(
     target="#cache-prune",
     source=[
-        "#buildscripts/scons_cache_prune.py",
+        "#scripts/buildscripts/scons_cache_prune.py",
     ],
     action="$PYTHON ${SOURCES[0]} --cache-dir=${CACHE_DIR.abspath} --cache-size=${CACHE_SIZE} --prune-ratio=${CACHE_PRUNE_TARGET/100.00}",
     CACHE_DIR=env.Dir(cacheDir),
