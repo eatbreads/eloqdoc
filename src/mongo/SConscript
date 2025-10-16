@@ -64,7 +64,6 @@ env.Library(
         'base/init.cpp',
         'base/initializer.cpp',
         'base/initializer_dependency_graph.cpp',
-        'base/local_thread_state.cpp',
         'base/make_string_vector.cpp',
         'base/parse_number.cpp',
         'base/shim.cpp',
@@ -370,6 +369,13 @@ mongod = env.Program(
         'servers',
     ],
 )
+
+if env.TargetOSIs('linux'):
+    # Adjust DT_NEEDED order using patchelf immediately after linking, before install
+    env.AddPostAction(mongod, 'patchelf --remove-needed libmimalloc.so.2 $TARGET')
+    env.AddPostAction(mongod, 'patchelf --remove-needed libbrpc.so $TARGET')
+    env.AddPostAction(mongod, 'patchelf --add-needed libbrpc.so $TARGET')
+    env.AddPostAction(mongod, 'patchelf --add-needed libmimalloc.so.2 $TARGET')
 
 hygienic = get_option('install-mode') == 'hygienic'
 
