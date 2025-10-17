@@ -271,6 +271,21 @@ bool EloqKVEngine::InitMetricsRegistry() {
 }
 
 EloqKVEngine::EloqKVEngine(const std::string& path) : _dbPath(path) {
+#ifdef ELOQ_MODULE_ENABLED
+    GFLAGS_NAMESPACE::SetCommandLineOption("use_pthread_event_dispatcher", "true");
+    GFLAGS_NAMESPACE::SetCommandLineOption("worker_polling_time_us", "100000");  // 100ms
+#endif
+    if (!eloqGlobalOptions.enableIOuring && eloqGlobalOptions.raftlogAsyncFsync) {
+        const char* errmsg =
+            "Invalid config: when set txlogAsyncFsync, should also set enableIOuring.";
+        error() << errmsg;
+        uasserted(ErrorCodes::InvalidOptions, errmsg);
+    }
+    GFLAGS_NAMESPACE::SetCommandLineOption("use_io_uring",
+                                           eloqGlobalOptions.enableIOuring ? "true" : "false");
+    GFLAGS_NAMESPACE::SetCommandLineOption("raft_use_bthread_fsync",
+                                           eloqGlobalOptions.raftlogAsyncFsync ? "true" : "false");
+
 #if (defined(DATA_STORE_TYPE_DYNAMODB) || defined(LOG_STATE_TYPE_RKDB_S3) || \
      defined(DATA_STORE_TYPE_ELOQDSS_ROCKSDB_CLOUD_S3))
     awsInit();
@@ -333,7 +348,7 @@ EloqKVEngine::EloqKVEngine(const std::string& path) : _dbPath(path) {
                                                       eloqGlobalOptions.nodeGroupReplicaNum,
                                                       0);
             if (!parse_res) {
-                LOG(ERROR) << "Failed to extract cluster configs from ip_port_list.";
+                error() << "Failed to extract cluster configs from ip_port_list.";
                 uasserted(ErrorCodes::InvalidOptions,
                           "Failed to extract cluster configs from ip_port_list.");
             }
@@ -829,8 +844,9 @@ void EloqKVEngine::listDatabases(std::vector<std::string>& out) const {
     MONGO_LOG(1) << "EloqKVEngine::listDatabases";
 
     std::vector<std::string> tables;
-    // bool success = Eloq::storeHandler->DiscoverAllTableNames(tables);
-    bool success = Eloq::GetAllTables(tables);
+
+    const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
+    bool success = Eloq::GetAllTables(tables, coro.yieldFuncPtr, coro.resumeFuncPtr);
     if (!success) {
         error() << "Failed to discover table names.";
         uassertStatusOK(Status{ErrorCodes::InternalError, "Failed to discover collection names."});
@@ -862,8 +878,9 @@ bool EloqKVEngine::databaseExists(std::string_view dbName) const {
                  << ". dbName: " << dbName;
 
     std::vector<std::string> tables;
-    // Eloq::storeHandler->DiscoverAllTableNames(tables);
-    bool success = Eloq::GetAllTables(tables);
+
+    const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
+    bool success = Eloq::GetAllTables(tables, coro.yieldFuncPtr, coro.resumeFuncPtr);
 
     if (!success) {
         error() << "Failed to discover collection names.";
@@ -881,8 +898,9 @@ void EloqKVEngine::listCollections(std::string_view dbName, std::vector<std::str
     MONGO_LOG(1) << "EloqKVEngine::listCollections"
                  << ". db: " << dbName;
     std::vector<std::string> allCollections;
-    // Eloq::storeHandler->DiscoverAllTableNames(allCollections);
-    bool success = Eloq::GetAllTables(allCollections);
+
+    const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
+    bool success = Eloq::GetAllTables(allCollections, coro.yieldFuncPtr, coro.resumeFuncPtr);
 
     if (!success) {
         error() << "Failed to discover collection names.";
@@ -904,8 +922,9 @@ void EloqKVEngine::listCollections(std::string_view dbName, std::set<std::string
     MONGO_LOG(1) << "EloqKVEngine::listCollections"
                  << ". db: " << dbName;
     std::vector<std::string> allCollections;
-    // Eloq::storeHandler->DiscoverAllTableNames(allCollections);
-    bool success = Eloq::GetAllTables(allCollections);
+
+    const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
+    bool success = Eloq::GetAllTables(allCollections, coro.yieldFuncPtr, coro.resumeFuncPtr);
 
     if (!success) {
         error() << "Failed to discover collection names.";
@@ -1129,8 +1148,9 @@ std::vector<std::string> EloqKVEngine::getAllIdents(OperationContext* opCtx) con
     std::vector<std::string> all;
 
     std::vector<std::string> tableNameVector;
-    // Eloq::storeHandler->DiscoverAllTableNames(tableNameVector);
-    bool success = Eloq::GetAllTables(tableNameVector);
+
+    const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
+    bool success = Eloq::GetAllTables(tableNameVector, coro.yieldFuncPtr, coro.resumeFuncPtr);
 
     if (!success) {
         error() << "Failed to discover collection names.";
@@ -1189,7 +1209,7 @@ std::vector<std::string> EloqKVEngine::getAllIdents(OperationContext* opCtx) con
 void EloqKVEngine::cleanShutdown() {
     MONGO_LOG(0) << "EloqKVEngine::cleanShutdown";
 
-    _txService->Shutdown();
+    shutdownTxService();
     Eloq::storeHandler.reset();
     Eloq::dataStoreService.reset();
 
@@ -1199,6 +1219,27 @@ void EloqKVEngine::cleanShutdown() {
 #endif
 
     _txService.reset();
+}
+
+void EloqKVEngine::shutdownTxService() {
+#ifndef ELOQ_MODULE_ENABLED
+    _txService->Shutdown();
+#else
+    // 1.When merged into ConvergedDB, `_txService->Shutdown()` should be moved out.
+    // 2.eloq::unregister_module is not allowed to called in a brpc-worker thread.
+    bool done = false;
+    coro::Mutex mux;
+    coro::ConditionVariable cv;
+    std::thread thd([this, &done, &mux, &cv]() {
+        std::unique_lock lk(mux);
+        _txService->Shutdown();
+        done = true;
+        cv.notify_one();
+    });
+    thd.detach();
+    std::unique_lock lk(mux);
+    cv.wait(lk, [&done]() { return done; });
+#endif
 }
 
 void EloqKVEngine::setJournalListener(JournalListener* jl) {

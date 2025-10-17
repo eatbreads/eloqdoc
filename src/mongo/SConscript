@@ -64,7 +64,6 @@ env.Library(
         'base/init.cpp',
         'base/initializer.cpp',
         'base/initializer_dependency_graph.cpp',
-        'base/local_thread_state.cpp',
         'base/make_string_vector.cpp',
         'base/parse_number.cpp',
         'base/shim.cpp',
@@ -365,6 +364,10 @@ mongod = env.Program(
         'base',
         'mongodmain',
     ],
+    SYSLIBDEPS=[
+        'mimalloc',
+        'brpc',
+    ] if env.TargetOSIs('linux') else [],
     INSTALL_ALIAS=[
         'core',
         'default',
