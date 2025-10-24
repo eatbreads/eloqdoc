@@ -182,8 +182,8 @@ elif data_store_type == DATA_STORE_TYPE_ELOQSTORE:
     if with_log_state == "ROCKSDB_CLOUD_S3":
         _rkdb_cloud_includes = [
             FindIncludePath("rocksdb_cloud_header"),
-            FindIncludePath("rocksdb_cloud_header/rocksdb"),
-            FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
+            # FindIncludePath("rocksdb_cloud_header/rocksdb"),
+            # FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
         ]
         env["CPPPATH"].extend([p for p in _rkdb_cloud_includes if p])
 
@@ -197,8 +197,8 @@ elif data_store_type == DATA_STORE_TYPE_ELOQSTORE:
     elif with_log_state == "ROCKSDB_CLOUD_GCS":
         _rkdb_cloud_includes = [
             FindIncludePath("rocksdb_cloud_header"),
-            FindIncludePath("rocksdb_cloud_header/rocksdb"),
-            FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
+            # FindIncludePath("rocksdb_cloud_header/rocksdb"),
+            # FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
         ]
         env["CPPPATH"].extend([p for p in _rkdb_cloud_includes if p])
 
