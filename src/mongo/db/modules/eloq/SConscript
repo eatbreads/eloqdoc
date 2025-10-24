@@ -214,17 +214,27 @@ if data_store_type == DATA_STORE_TYPE_ROCKSDB_CLOUD:
 elif data_store_type == DATA_STORE_TYPE_ROCKSDB:
    store_deps = ["rocksdb"]
 elif data_store_type == DATA_STORE_TYPE_ELOQSTORE:
-   store_deps = [
-      # FindLibPath("rocksdb"),
-      FindLibPath("aws-cpp-sdk-core"),
-      FindLibPath("aws-cpp-sdk-kinesis"),
-      FindLibPath("aws-cpp-sdk-s3"),
-      # FindLibPath("google_cloud_cpp_common"),
-      # FindLibPath("google_cloud_cpp_storage"),
-      FindLibPath("rocksdb-cloud-aws"),
-      # FindLibPath("rocksdb-cloud-gcp"),
-      "rocksdb"
-   ]
+    if with_log_state == "ROCKSDB_CLOUD_S3":
+        store_deps = [
+            # FindLibPath("rocksdb"),
+            FindLibPath("aws-cpp-sdk-core"),
+            FindLibPath("aws-cpp-sdk-kinesis"),
+            FindLibPath("aws-cpp-sdk-s3"),
+            # FindLibPath("google_cloud_cpp_common"),
+            # FindLibPath("google_cloud_cpp_storage"),
+            FindLibPath("rocksdb-cloud-aws"),
+            # FindLibPath("rocksdb-cloud-gcp"),
+            "rocksdb"
+        ]
+    elif with_log_state == "ROCKSDB_CLOUD_GCS":
+        store_deps = [
+            # FindLibPath("rocksdb"),
+            FindLibPath("google_cloud_cpp_common"),
+            FindLibPath("google_cloud_cpp_storage"),
+            FindLibPath("rocksdb-cloud-aws"),
+            FindLibPath("rocksdb-cloud-gcp"),
+            "rocksdb"
+        ]
 
 eloq_dependencies = base_deps + store_deps
 
@@ -255,12 +265,21 @@ env.Append(LIBS=cmake_module_libs)
 
 # For RocksDB Cloud backends, ensure AWS/GCS SDKs are linked when needed because
 # this module directly references AWS Init/Shutdown APIs under S3 builds.
-if data_store_type == DATA_STORE_TYPE_ELOQSTORE:
+if data_store_type == DATA_STORE_TYPE_ROCKSDB_CLOUD:
     # Prefer explicit names; system library paths are already searched via SYSTEM_LIBRARY_PATH.
-    if data_store_type_str == "ELOQDSS_ELOQSTORE":
+    if data_store_type_str == "ELOQDSS_ROCKSDB_CLOUD_S3":
         env.Append(LIBS=["aws-cpp-sdk-core"])  # Aws::InitAPI/Aws::ShutdownAPI
         env.Append(LIBS=["aws-cpp-sdk-kinesis", "aws-cpp-sdk-s3", "rocksdb-cloud-aws"])
     elif data_store_type_str == "ELOQDSS_ROCKSDB_CLOUD_GCS":
+        env.Append(LIBS=["google_cloud_cpp_common"])
+        env.Append(LIBS=["google_cloud_cpp_storage", "rocksdb-cloud-gcp"])
+
+if data_store_type == DATA_STORE_TYPE_ELOQSTORE:
+    # Prefer explicit names; system library paths are already searched via SYSTEM_LIBRARY_PATH.
+    if with_log_state == "ROCKSDB_CLOUD_S3":
+        env.Append(LIBS=["aws-cpp-sdk-core"])  # Aws::InitAPI/Aws::ShutdownAPI
+        env.Append(LIBS=["aws-cpp-sdk-kinesis", "aws-cpp-sdk-s3", "rocksdb-cloud-aws"])
+    elif with_log_state == "ROCKSDB_CLOUD_GCS":
         env.Append(LIBS=["google_cloud_cpp_common"])
         env.Append(LIBS=["google_cloud_cpp_storage", "rocksdb-cloud-gcp"])
 
