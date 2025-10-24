@@ -179,6 +179,33 @@ elif data_store_type == DATA_STORE_TYPE_ROCKSDB:
         ]
     )
 elif data_store_type == DATA_STORE_TYPE_ELOQSTORE:
+    if with_log_state == "ROCKSDB_CLOUD_S3":
+        _rkdb_cloud_includes = [
+            FindIncludePath("rocksdb_cloud_header/"),
+            FindIncludePath("rocksdb_cloud_header/rocksdb"),
+            FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
+        ]
+        env["CPPPATH"].extend([p for p in _rkdb_cloud_includes if p])
+
+        _aws_includes = [
+            FindIncludePath("aws/core"),
+            FindIncludePath("aws/kinesis"),
+            FindIncludePath("aws/s3"),
+        ]
+        env["CPPPATH"].extend([p for p in _aws_includes if p])
+        
+    elif with_log_state == "ROCKSDB_CLOUD_GCS":
+        _rkdb_cloud_includes = [
+            FindIncludePath("rocksdb_cloud_header/"),
+            FindIncludePath("rocksdb_cloud_header/rocksdb"),
+            FindIncludePath("rocksdb_cloud_header/rocksdb/cloud"),
+        ]
+        env["CPPPATH"].extend([p for p in _rkdb_cloud_includes if p])
+        
+        _gcs_includes = [FindIncludePath("google/cloud/storage")]
+        env["CPPPATH"].extend([p for p in _gcs_includes if p])
+
+
     env["CPPPATH"].extend(
         [
             "$ELOQ_ENGINE_ROOT/store_handler/eloq_data_store_service/eloqstore",
