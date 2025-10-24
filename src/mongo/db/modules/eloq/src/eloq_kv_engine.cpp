@@ -237,9 +237,9 @@ static void configureEloqStore(EloqDS::EloqStoreConfig& eloq_store_config,
     eloq_store_config.eloqstore_configs_.file_amplify_factor =
         eloqGlobalOptions.eloqStoreFileAmplifyFactor;
 
-    eloq_store_config.eloqstore_configs_.local_space_limit =
-        txlog::parse_size(eloqGlobalOptions.eloqStoreLocalSpaceLimit) /
-        eloq_store_config.eloqstore_configs_.num_threads;
+    // eloq_store_config.eloqstore_configs_.local_space_limit =
+    //    txlog::parse_size(eloqGlobalOptions.eloqStoreLocalSpaceLimit) /
+    //    eloq_store_config.eloqstore_configs_.num_threads;
 
     eloq_store_config.eloqstore_configs_.reserve_space_ratio =
         eloqGlobalOptions.eloqStoreReserveSpaceRatio;

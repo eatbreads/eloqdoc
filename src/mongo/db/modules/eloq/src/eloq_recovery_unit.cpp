@@ -405,6 +405,7 @@ std::pair<bool, txservice::TxErrorCode> EloqRecoveryUnit::getKV(
                                            coro.resumeFuncPtr,
                                            _txm);
         _txm->Execute(&readTxReq);
+	// MONGO_LOG(1) << "== yf: getKV";
         readTxReq.Wait();
         MONGO_LOG(1) << "EloqRecoveryUnit::getKV txn: " << _txm->TxNumber()
                      << ". err: " << readTxReq.ErrorMsg()
