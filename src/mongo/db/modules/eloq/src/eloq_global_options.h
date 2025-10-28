@@ -26,7 +26,7 @@
 #include <cstdint>
 #include <sys/types.h>
 
-#include "mongo/db/modules/eloq/tx_service/include/cc_protocol.h"
+#include "mongo/db/modules/eloq/data_substrate/tx_service/include/cc_protocol.h"
 
 
 namespace mongo {
