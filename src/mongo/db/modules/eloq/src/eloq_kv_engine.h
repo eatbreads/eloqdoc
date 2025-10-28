@@ -29,13 +29,14 @@
 #include "mongo/db/modules/eloq/src/eloq_record_store.h"
 
 #ifdef OPEN_LOG_SERVICE
-#include "mongo/db/modules/eloq/log_service/include/log_server.h"
+#include "mongo/db/modules/eloq/data_substrate/log_service/include/log_server.h"
 #else
-#include "mongo/db/modules/eloq/eloq_log_service/include/log_server.h"
-#include "mongo/db/modules/eloq/eloq_log_service/include/log_utils.h"
+#include "mongo/db/modules/eloq/data_substrate/eloq_log_service/include/log_server.h"
+#include "mongo/db/modules/eloq/data_substrate/eloq_log_service/include/log_utils.h"
 #endif
-#include "mongo/db/modules/eloq/tx_service/include/sharder.h"
-#include "mongo/db/modules/eloq/tx_service/include/tx_service.h"
+
+#include "mongo/db/modules/eloq/data_substrate/tx_service/include/sharder.h"
+#include "mongo/db/modules/eloq/data_substrate/tx_service/include/tx_service.h"
 
 namespace mongo {
 class MongoSystemHandler : public txservice::SystemHandler {
@@ -61,11 +62,6 @@ class EloqKVEngine final : public KVEngine {
 
 public:
     explicit EloqKVEngine(const std::string& path);
-    void initDataStoreService(
-        bool isSingleNode,
-        uint32_t nodeId,
-        uint32_t nativeNgId,
-        const std::unordered_map<uint32_t, std::vector<txservice::NodeConfig>>& ng_configs);
 
     ~EloqKVEngine() override;
 
@@ -196,12 +192,9 @@ private:
     void shutdownTxService();
 
 private:
-    std::unique_ptr<txservice::TxService> _txService;
-    std::unique_ptr<txlog::LogServer> _logServer;
-    Eloq::MongoCatalogFactory _catalogFactory;
-    MongoSystemHandler _mongoSystemHandler;
+    txservice::TxService *_txService;
+    txlog::LogServer *_logServer;
     std::string _dbPath;
-    std::unique_ptr<Eloq::MongoLogAgent> _logAgent;
     std::unique_ptr<metrics::MetricsRegistry> _metricsRegistry{nullptr};
 };
 }  // namespace mongo
