@@ -1,0 +1,3 @@
+[submodule "src/mongo/db/modules/eloq/data_substrate"]
+	path = src/mongo/db/modules/eloq/data_substrate
+	url = https://github.com/eloqdata/tx_service.git
