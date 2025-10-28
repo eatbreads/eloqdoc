@@ -40,12 +40,13 @@
 #include "mongo/db/modules/eloq/src/base/eloq_table_schema.h"
 #include "mongo/db/modules/eloq/src/base/eloq_util.h"
 #include "mongo/db/modules/eloq/src/eloq_record_store.h"
-#include "mongo/db/modules/eloq/store_handler/kv_store.h"
+#include "mongo/db/modules/eloq/data_substrate/store_handler/kv_store.h"
 
-#include "mongo/db/modules/eloq/tx_service/include/type.h"
+#include "mongo/db/modules/eloq/data_substrate/tx_service/include/type.h"
+
+#include "mongo/db/modules/eloq/data_substrate/core/include/data_substrate.h"
 
 namespace Eloq {
-extern std::unique_ptr<txservice::store::DataStoreHandler> storeHandler;
 
 MongoMultiKeyPaths::MongoMultiKeyPaths(const mongo::IndexDescriptor* desc) {
     const std::string& type = desc->getAccessMethodName();
@@ -245,6 +246,7 @@ MongoTableSchema::MongoTableSchema(const txservice::TableName& table_name,
     key_schemas_ts.Deserialize(key_schemas_ts_str_.data(), ts_offset);
 
     size_t offset = 0;
+    auto *storeHandler = DataSubstrate::GetGlobal()->GetStoreHandler();
     kv_info_ = storeHandler->DeserializeKVCatalogInfo(kv_info_str_, offset);
 
     invariant(!meta_data_str_.empty());
@@ -301,6 +303,7 @@ txservice::TableSchema::uptr MongoTableSchema::Clone() const {
 
 void MongoTableSchema::SetKVCatalogInfo(const std::string& kv_info) {
     size_t offset = 0;
+    auto *storeHandler = DataSubstrate::GetGlobal()->GetStoreHandler();
     kv_info_ = storeHandler->DeserializeKVCatalogInfo(kv_info, offset);
 }
 
