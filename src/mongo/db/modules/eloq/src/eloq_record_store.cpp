@@ -37,12 +37,12 @@
 #include "mongo/util/assert_util.h"
 #include "mongo/util/log.h"
 
+#include "mongo/db/modules/eloq/data_substrate/store_handler/kv_store.h"
 #include "mongo/db/modules/eloq/src/base/eloq_key.h"
 #include "mongo/db/modules/eloq/src/base/eloq_record.h"
 #include "mongo/db/modules/eloq/src/base/eloq_util.h"
 #include "mongo/db/modules/eloq/src/eloq_record_store.h"
 #include "mongo/db/modules/eloq/src/eloq_recovery_unit.h"
-#include "mongo/db/modules/eloq/data_substrate/store_handler/kv_store.h"
 
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/catalog_key_record.h"
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/tx_key.h"

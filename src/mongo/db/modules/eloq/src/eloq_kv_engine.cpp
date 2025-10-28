@@ -35,6 +35,7 @@
 
 #include "log_utils.h"
 #include "mongo/db/modules/eloq/data_substrate/eloq_metrics/include/metrics.h"
+#include "mongo/db/modules/eloq/data_substrate/store_handler/kv_store.h"
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/catalog_key_record.h"
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/dead_lock_check.h"
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/sequences/sequences.h"
@@ -48,7 +49,6 @@
 #include "mongo/db/modules/eloq/src/eloq_kv_engine.h"
 #include "mongo/db/modules/eloq/src/eloq_record_store.h"
 #include "mongo/db/modules/eloq/src/eloq_recovery_unit.h"
-#include "mongo/db/modules/eloq/data_substrate/store_handler/kv_store.h"
 
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/tx_key.h"
 #include "mongo/db/modules/eloq/data_substrate/tx_service/include/tx_record.h"
@@ -125,10 +125,10 @@
 
 // register catalog factory for data_substrate to link
 Eloq::MongoCatalogFactory catalogFactory;
-txservice::CatalogFactory *eloqdoc_catalog_factory = &catalogFactory;
+txservice::CatalogFactory* eloqdoc_catalog_factory = &catalogFactory;
 
 mongo::MongoSystemHandler mongoSystemHandler;
-txservice::SystemHandler *eloqdoc_system_handler = &mongoSystemHandler;
+txservice::SystemHandler* eloqdoc_system_handler = &mongoSystemHandler;
 
 namespace mongo {
 

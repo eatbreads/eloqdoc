@@ -646,11 +646,11 @@ Status EloqGlobalOptions::add(moe::OptionSection* options) {
         .setDefault(moe::Value(true));
 
     eloqOptions
-	.addOptionChaining("storage.eloq.data_substrate_config",
-			   "data_substrate_config",
-			   moe::String,
-			   "Eloq Data Substrate config file path")
-	.setDefault(moe::Value(""));
+        .addOptionChaining("storage.eloq.data_substrate_config",
+                           "data_substrate_config",
+                           moe::String,
+                           "Eloq Data Substrate config file path")
+        .setDefault(moe::Value(""));
 
     return options->addSection(eloqOptions);
 }

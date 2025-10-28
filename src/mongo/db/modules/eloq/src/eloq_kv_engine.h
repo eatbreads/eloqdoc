@@ -192,8 +192,8 @@ private:
     void shutdownTxService();
 
 private:
-    txservice::TxService *_txService;
-    txlog::LogServer *_logServer;
+    txservice::TxService* _txService;
+    txlog::LogServer* _logServer;
     std::string _dbPath;
     std::unique_ptr<metrics::MetricsRegistry> _metricsRegistry{nullptr};
 };
