@@ -129,19 +129,21 @@ Status addGeneralServerOptions(moe::OptionSection* options) {
         .hidden()
         .setDefault(moe::Value("synchronous"));
 
-    // register options in config file
-    options->addOptionChaining("storage.eloq.enableCoroutine",
-                               "eloqEnableCoroutine",
-                               moe::Bool,
-                               "whether to enable coroutine");
-    options->addOptionChaining("storage.eloq.reservedThreadNum",
-                               "eloqReservedThreadNum",
-                               moe::Unsigned,
-                               "set the thread num for coroutine service executor mode");
-    options->addOptionChaining("storage.eloq.adaptiveThreadNum",
-                               "eloqAdaptiveThreadNum",
-                               moe::Unsigned,
-                               "set the thread num for adaptive service executor mode");
+    options
+        ->addOptionChaining("net.adaptiveThreadNum",
+                            "adaptiveThreadNum",
+                            moe::Int,
+                            "set the thread num for adaptive service executor mode")
+        .setDefault(moe::Value(1));
+
+    options
+        ->addOptionChaining("storage.eloq.reservedThreadNum",
+                            "eloqReservedThreadNum",
+                            moe::Int,
+                            "set the thread num for coroutine service executor mode must equals to "
+                            "core_number of data substrate")
+        .setDefault(moe::Value(0));
+
     options
         ->addOptionChaining(
             "storage.eloq.bootstrap", "eloqBootstrap", moe::Bool, "Bootstrap the Eloq cluster.")
@@ -568,27 +570,19 @@ Status storeServerOptions(const moe::Environment& params) {
         serverGlobalParams.serviceExecutor = "synchronous";
     }
 
-    if (params.count("storage.eloq.enableCoroutine")) {
-        serverGlobalParams.enableCoroutine = params["storage.eloq.enableCoroutine"].as<bool>();
-        if (serverGlobalParams.enableCoroutine &&
-            serverGlobalParams.serviceExecutor != "adaptive") {
-            return Status(ErrorCodes::BadValue,
-                          "Coroutine mode can only work with adaptive ServiceExecutor");
+    if (params.count("net.adaptiveThreadNum")) {
+        serverGlobalParams.adaptiveThreadNum = params["net.adaptiveThreadNum"].as<int>();
+        if (serverGlobalParams.adaptiveThreadNum < 1) {
+            return Status(ErrorCodes::BadValue, "adaptiveThreadNum has to be at least 1");
         }
     }
 
     if (params.count("storage.eloq.reservedThreadNum")) {
-        serverGlobalParams.reservedThreadNum =
-            params["storage.eloq.reservedThreadNum"].as<unsigned>();
+        serverGlobalParams.reservedThreadNum = params["storage.eloq.reservedThreadNum"].as<int>();
         if (serverGlobalParams.reservedThreadNum < 1) {
-            return Status(ErrorCodes::BadValue, "reservedThreadNum has to be at least 1");
-        }
-    }
-    if (params.count("storage.eloq.adaptiveThreadNum")) {
-        serverGlobalParams.adaptiveThreadNum =
-            params["storage.eloq.adaptiveThreadNum"].as<unsigned>();
-        if (serverGlobalParams.adaptiveThreadNum < 1) {
-            return Status(ErrorCodes::BadValue, "adaptiveThreadNum has to be at least 1");
+            return Status(ErrorCodes::BadValue,
+                          "eloqReservedThreadNum has to be at least 1, must equal to core_number "
+                          "of data substrate");
         }
     }
 
