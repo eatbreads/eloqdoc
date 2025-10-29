@@ -50,7 +50,12 @@ int wmain(int argc, wchar_t* argvW[], wchar_t* envpW[]) {
 }
 #else
 int main(int argc, char* argv[], char** envp) {
-    GFLAGS_NAMESPACE::ParseCommandLineFlags(&argc, &argv, false);
+    // When compiled as standalone mode, allow unrecognized flags
+    // to be passed through to mongod
+    gflags::AllowCommandLineReparsing();
+    // Allow all mongod-specific flags to pass through without error
+    gflags::SetCommandLineOption("undefok", "*");
+    GFLAGS_NAMESPACE::ParseCommandLineNonHelpFlags(&argc, &argv, false);
     int exitCode = mongo::mongoDbMain(argc, argv, envp);
     mongo::quickExit(exitCode);
 }
