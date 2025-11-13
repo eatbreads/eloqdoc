@@ -154,14 +154,17 @@ launch_eloqdoc() {
       local bucket_prefix="$2"
       echo "launch eloqdoc with bucket name: $bucket_name, bucket prefix: $bucket_prefix"
       mkdir -p "$PREFIX/log" "$PREFIX/data"
-      sed -i "s|rocksdbCloudEndpointUrl: \"http://[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+:[0-9]\+\"|rocksdbCloudEndpointUrl: \"${MINIO_ENDPOINT}\"|g" /home/eloq/workspace/mongo/concourse/scripts/store_rocksdb_cloud.yaml
-      sed -i "s|txlogRocksDBCloudEndpointUrl: \"http://[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+:[0-9]\+\"|txlogRocksDBCloudEndpointUrl: \"${MINIO_ENDPOINT}\"|g" /home/eloq/workspace/mongo/concourse/scripts/store_rocksdb_cloud.yaml
       nohup $PREFIX/bin/eloqdoc \
-            --config ./concourse/scripts/store_rocksdb_cloud.yaml \
-            --eloqRocksdbCloudBucketName="$bucket_name" \
-            --eloqRocksdbCloudBucketPrefix="$bucket_prefix" \
-            --eloqTxlogRocksDBCloudBucketName="$bucket_name" \
-            --eloqTxlogRocksDBCloudBucketPrefix="$bucket_prefix" \
+            --config=./concourse/scripts/store_rocksdb_cloud.yaml \
+	    --data_substrate_config=./concourse/scripts/data_substrate.cnf \
+            --rocksdb_cloud_bucket_name="$bucket_name" \
+            --rocksdb_cloud_bucket_prefix="$bucket_prefix" \
+	    --rocksdb_cloud_object_path="dss" \
+	    --rocksdb_cloud_s3_endpoint_url=${MINIO_ENDPOINT} \
+            --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
+            --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
+	    --txlog_rocksdb_cloud_object_path="txlog" \
+	    --txlog_rocksdb_cloud_endpoint_url=${MINIO_ENDPOINT} \
             &>$PREFIX/log/eloqdoc.out &
 }
 
