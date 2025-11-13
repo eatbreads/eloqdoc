@@ -1,6 +1,11 @@
 #!/bin/bash
 set -exo pipefail
 
+export PREFIX="/home/eloq/workspace/mongo/install"
+export MINIO_ENDPOINT="http://172.17.0.1:9000"
+export MINIO_ACCESS_KEY="35cxOCh64Ef1Mk5U1bgU"
+export MINIO_SECRET_KEY="M6oJQWdFCr27TUUS40wS6POQzbKhbFTHG9bRayoC"
+
 source "$(dirname "$0")/common.sh"
 
 CWDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
