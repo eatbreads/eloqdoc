@@ -136,18 +136,6 @@ Status addGeneralServerOptions(moe::OptionSection* options) {
                             "set the thread num for adaptive service executor mode")
         .setDefault(moe::Value(1));
 
-    options
-        ->addOptionChaining("storage.eloq.reservedThreadNum",
-                            "eloqReservedThreadNum",
-                            moe::Int,
-                            "set the thread num for coroutine service executor mode must equals to "
-                            "core_number of data substrate")
-        .setDefault(moe::Value(0));
-
-    options
-        ->addOptionChaining(
-            "storage.eloq.bootstrap", "eloqBootstrap", moe::Bool, "Bootstrap the Eloq cluster.")
-        .setDefault(moe::Value(false));
 #if MONGO_ENTERPRISE_VERSION
     options->addOptionChaining("security.redactClientLogData",
                                "redactClientLogData",
@@ -574,23 +562,6 @@ Status storeServerOptions(const moe::Environment& params) {
         serverGlobalParams.adaptiveThreadNum = params["net.adaptiveThreadNum"].as<int>();
         if (serverGlobalParams.adaptiveThreadNum < 1) {
             return Status(ErrorCodes::BadValue, "adaptiveThreadNum has to be at least 1");
-        }
-    }
-
-    if (params.count("storage.eloq.reservedThreadNum")) {
-        serverGlobalParams.reservedThreadNum = params["storage.eloq.reservedThreadNum"].as<int>();
-        if (serverGlobalParams.reservedThreadNum < 1) {
-            return Status(ErrorCodes::BadValue,
-                          "eloqReservedThreadNum has to be at least 1, must equal to core_number "
-                          "of data substrate");
-        }
-    }
-
-    if (params.count("storage.eloq.bootstrap")) {
-        serverGlobalParams.bootstrap = params["storage.eloq.bootstrap"].as<bool>();
-        if (serverGlobalParams.bootstrap) {
-            log() << "This is a bootstrap for EloqDoc. The program will automatically exit after "
-                     "bootstrap.";
         }
     }
 

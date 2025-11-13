@@ -130,10 +130,10 @@ txservice::CatalogFactory* eloqdoc_catalog_factory = &catalogFactory;
 mongo::MongoSystemHandler mongoSystemHandler;
 txservice::SystemHandler* eloqdoc_system_handler = &mongoSystemHandler;
 
-namespace mongo {
-
 // data substrate config
 DEFINE_string(data_substrate_config, "", "Data Substrate Configuration");
+
+namespace mongo {
 
 extern std::function<std::pair<std::function<void()>, std::function<void(int16_t)>>(int16_t)>
     getTxServiceFunctors;
@@ -161,23 +161,7 @@ bool EloqKVEngine::InitMetricsRegistry() {
 }
 
 EloqKVEngine::EloqKVEngine(const std::string& path) : _dbPath(path) {
-#ifdef ELOQ_MODULE_ENABLED
-    GFLAGS_NAMESPACE::SetCommandLineOption("use_pthread_event_dispatcher", "true");
-    GFLAGS_NAMESPACE::SetCommandLineOption("worker_polling_time_us", "100000");  // 100ms
-#endif
-    if (!eloqGlobalOptions.enableIOuring && eloqGlobalOptions.raftlogAsyncFsync) {
-        const char* errmsg =
-            "Invalid config: when set txlogAsyncFsync, should also set enableIOuring.";
-        error() << errmsg;
-        uasserted(ErrorCodes::InvalidOptions, errmsg);
-    }
-    GFLAGS_NAMESPACE::SetCommandLineOption("use_io_uring",
-                                           eloqGlobalOptions.enableIOuring ? "true" : "false");
-    GFLAGS_NAMESPACE::SetCommandLineOption("raft_use_bthread_fsync",
-                                           eloqGlobalOptions.raftlogAsyncFsync ? "true" : "false");
-
     log() << "Starting Eloq storage engine. dbPath: " << path;
-
     log() << "Standalone mode: Initializing data substrate...";
     DataSubstrate::InitializeGlobal(FLAGS_data_substrate_config);
 
