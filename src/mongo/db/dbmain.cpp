@@ -35,8 +35,6 @@
 
 #include <gflags/gflags.h>
 
-DEFINE_string(config, "", "eloqdoc configuration file");
-
 #if defined(_WIN32)
 // In Windows, wmain() is an alternate entry point for main(), and receives the same parameters
 // as main() but encoded in Windows Unicode (UTF-16); "wide" 16-bit wchar_t characters.  The
