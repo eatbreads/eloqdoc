@@ -178,7 +178,7 @@ EloqKVEngine::EloqKVEngine(const std::string& path) : _dbPath(path) {
 
     log() << "Starting Eloq storage engine. dbPath: " << path;
 
-    LOG(INFO) << "Standalone mode: Initializing data substrate...";
+    log() << "Standalone mode: Initializing data substrate...";
     DataSubstrate::InitializeGlobal(FLAGS_data_substrate_config);
 
     _logServer = DataSubstrate::GetGlobal()->GetLogServer();
@@ -187,6 +187,8 @@ EloqKVEngine::EloqKVEngine(const std::string& path) : _dbPath(path) {
 #ifdef EXT_TX_PROC_ENABLED
     getTxServiceFunctors = _txService->GetTxProcFunctors();
 #endif
+
+    log() << "Eloq storage engine initialized.";
 }
 
 EloqKVEngine::~EloqKVEngine() {
