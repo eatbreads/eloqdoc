@@ -559,140 +559,153 @@ Status storeServerOptions(const moe::Environment& params) {
     }
 
     if (params.count("net.adaptiveThreadNum")) {
-        serverGlobalParams.adaptiveThreadNum = params["net.adaptiveThreadNum"].as<int>();
-        if (serverGlobalParams.adaptiveThreadNum < 1) {
-            return Status(ErrorCodes::BadValue, "adaptiveThreadNum has to be at least 1");
-        }
-    }
+        if (serverGlobalParams.serviceExecutor != "adaptive") {
+            return {ErrorCodes::BadValue,
+                    "adaptiveThreadNum can only be used with serviceExecutor=adaptive"};
+            serverGlobalParams.adaptiveThreadNum = params["net.adaptiveThreadNum"].as<int>();
+            if (serverGlobalParams.adaptiveThreadNum < 1) {
+                return {ErrorCodes::BadValue, "adaptiveThreadNum has to be at least 1"};
+            }
 
-    if (params.count("security.transitionToAuth")) {
-        serverGlobalParams.transitionToAuth = params["security.transitionToAuth"].as<bool>();
-    }
+            if (params.count("security.transitionToAuth")) {
+                serverGlobalParams.transitionToAuth =
+                    params["security.transitionToAuth"].as<bool>();
+            }
 
-    if (params.count("security.clusterAuthMode")) {
-        std::string clusterAuthMode = params["security.clusterAuthMode"].as<std::string>();
+            if (params.count("security.clusterAuthMode")) {
+                std::string clusterAuthMode = params["security.clusterAuthMode"].as<std::string>();
 
-        if (clusterAuthMode == "keyFile") {
-            serverGlobalParams.clusterAuthMode.store(ServerGlobalParams::ClusterAuthMode_keyFile);
-        } else if (clusterAuthMode == "sendKeyFile") {
-            serverGlobalParams.clusterAuthMode.store(
-                ServerGlobalParams::ClusterAuthMode_sendKeyFile);
-        } else if (clusterAuthMode == "sendX509") {
-            serverGlobalParams.clusterAuthMode.store(ServerGlobalParams::ClusterAuthMode_sendX509);
-        } else if (clusterAuthMode == "x509") {
-            serverGlobalParams.clusterAuthMode.store(ServerGlobalParams::ClusterAuthMode_x509);
-        } else {
-            return Status(ErrorCodes::BadValue,
-                          "unsupported value for clusterAuthMode " + clusterAuthMode);
-        }
-        serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
-    } else {
-        serverGlobalParams.clusterAuthMode.store(ServerGlobalParams::ClusterAuthMode_undefined);
-    }
+                if (clusterAuthMode == "keyFile") {
+                    serverGlobalParams.clusterAuthMode.store(
+                        ServerGlobalParams::ClusterAuthMode_keyFile);
+                } else if (clusterAuthMode == "sendKeyFile") {
+                    serverGlobalParams.clusterAuthMode.store(
+                        ServerGlobalParams::ClusterAuthMode_sendKeyFile);
+                } else if (clusterAuthMode == "sendX509") {
+                    serverGlobalParams.clusterAuthMode.store(
+                        ServerGlobalParams::ClusterAuthMode_sendX509);
+                } else if (clusterAuthMode == "x509") {
+                    serverGlobalParams.clusterAuthMode.store(
+                        ServerGlobalParams::ClusterAuthMode_x509);
+                } else {
+                    return Status(ErrorCodes::BadValue,
+                                  "unsupported value for clusterAuthMode " + clusterAuthMode);
+                }
+                serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
+            } else {
+                serverGlobalParams.clusterAuthMode.store(
+                    ServerGlobalParams::ClusterAuthMode_undefined);
+            }
 
-    if (params.count("net.maxIncomingConnections")) {
-        serverGlobalParams.maxConns = params["net.maxIncomingConnections"].as<int>();
+            if (params.count("net.maxIncomingConnections")) {
+                serverGlobalParams.maxConns = params["net.maxIncomingConnections"].as<int>();
 
-        if (serverGlobalParams.maxConns < 5) {
-            return Status(ErrorCodes::BadValue, "maxConns has to be at least 5");
-        }
-    }
+                if (serverGlobalParams.maxConns < 5) {
+                    return Status(ErrorCodes::BadValue, "maxConns has to be at least 5");
+                }
+            }
 
-    if (params.count("net.wireObjectCheck")) {
-        serverGlobalParams.objcheck = params["net.wireObjectCheck"].as<bool>();
-    }
+            if (params.count("net.wireObjectCheck")) {
+                serverGlobalParams.objcheck = params["net.wireObjectCheck"].as<bool>();
+            }
 
-    if (params.count("net.bindIpAll") && params["net.bindIpAll"].as<bool>()) {
-        // Bind to all IP addresses
-        serverGlobalParams.bind_ips.emplace_back("0.0.0.0");
-        if (params.count("net.ipv6") && params["net.ipv6"].as<bool>()) {
-            serverGlobalParams.bind_ips.emplace_back("::");
-        }
-    } else if (params.count("net.bindIp")) {
-        std::string bind_ip = params["net.bindIp"].as<std::string>();
-        boost::split(
-            serverGlobalParams.bind_ips,
-            bind_ip,
-            [](char c) { return c == ','; },
-            boost::token_compress_on);
-    }
+            if (params.count("net.bindIpAll") && params["net.bindIpAll"].as<bool>()) {
+                // Bind to all IP addresses
+                serverGlobalParams.bind_ips.emplace_back("0.0.0.0");
+                if (params.count("net.ipv6") && params["net.ipv6"].as<bool>()) {
+                    serverGlobalParams.bind_ips.emplace_back("::");
+                }
+            } else if (params.count("net.bindIp")) {
+                std::string bind_ip = params["net.bindIp"].as<std::string>();
+                boost::split(
+                    serverGlobalParams.bind_ips,
+                    bind_ip,
+                    [](char c) { return c == ','; },
+                    boost::token_compress_on);
+            }
 
-    for (auto& ip : serverGlobalParams.bind_ips) {
-        boost::algorithm::trim(ip);
-    }
+            for (auto& ip : serverGlobalParams.bind_ips) {
+                boost::algorithm::trim(ip);
+            }
 
 #ifndef _WIN32
-    if (params.count("net.unixDomainSocket.pathPrefix")) {
-        serverGlobalParams.socket = params["net.unixDomainSocket.pathPrefix"].as<string>();
-    }
+            if (params.count("net.unixDomainSocket.pathPrefix")) {
+                serverGlobalParams.socket = params["net.unixDomainSocket.pathPrefix"].as<string>();
+            }
 
-    if (params.count("net.unixDomainSocket.enabled")) {
-        serverGlobalParams.noUnixSocket = !params["net.unixDomainSocket.enabled"].as<bool>();
-    }
-    if (params.count("net.unixDomainSocket.filePermissions")) {
-        serverGlobalParams.unixSocketPermissions =
-            params["net.unixDomainSocket.filePermissions"].as<int>();
-    }
+            if (params.count("net.unixDomainSocket.enabled")) {
+                serverGlobalParams.noUnixSocket =
+                    !params["net.unixDomainSocket.enabled"].as<bool>();
+            }
+            if (params.count("net.unixDomainSocket.filePermissions")) {
+                serverGlobalParams.unixSocketPermissions =
+                    params["net.unixDomainSocket.filePermissions"].as<int>();
+            }
 
-    if ((params.count("processManagement.fork") &&
-         params["processManagement.fork"].as<bool>() == true) &&
-        (!params.count("shutdown") || params["shutdown"].as<bool>() == false)) {
-        serverGlobalParams.doFork = true;
-    }
+            if ((params.count("processManagement.fork") &&
+                 params["processManagement.fork"].as<bool>() == true) &&
+                (!params.count("shutdown") || params["shutdown"].as<bool>() == false)) {
+                serverGlobalParams.doFork = true;
+            }
 #endif  // _WIN32
 
-    if (serverGlobalParams.doFork && serverGlobalParams.logpath.empty() &&
-        !serverGlobalParams.logWithSyslog) {
-        return Status(ErrorCodes::BadValue, "--fork has to be used with --logpath or --syslog");
-    }
+            if (serverGlobalParams.doFork && serverGlobalParams.logpath.empty() &&
+                !serverGlobalParams.logWithSyslog) {
+                return Status(ErrorCodes::BadValue,
+                              "--fork has to be used with --logpath or --syslog");
+            }
 
-    if (params.count("security.keyFile")) {
-        serverGlobalParams.keyFile =
-            boost::filesystem::absolute(params["security.keyFile"].as<string>()).generic_string();
-        serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
-    }
+            if (params.count("security.keyFile")) {
+                serverGlobalParams.keyFile =
+                    boost::filesystem::absolute(params["security.keyFile"].as<string>())
+                        .generic_string();
+                serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
+            }
 
-    if (serverGlobalParams.transitionToAuth ||
-        (params.count("security.authorization") &&
-         params["security.authorization"].as<std::string>() == "disabled")) {
-        serverGlobalParams.authState = ServerGlobalParams::AuthState::kDisabled;
-    } else if (params.count("security.authorization") &&
-               params["security.authorization"].as<std::string>() == "enabled") {
-        serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
-    }
+            if (serverGlobalParams.transitionToAuth ||
+                (params.count("security.authorization") &&
+                 params["security.authorization"].as<std::string>() == "disabled")) {
+                serverGlobalParams.authState = ServerGlobalParams::AuthState::kDisabled;
+            } else if (params.count("security.authorization") &&
+                       params["security.authorization"].as<std::string>() == "enabled") {
+                serverGlobalParams.authState = ServerGlobalParams::AuthState::kEnabled;
+            }
 
-    if (params.count("processManagement.pidFilePath")) {
-        serverGlobalParams.pidFile = params["processManagement.pidFilePath"].as<string>();
-    }
+            if (params.count("processManagement.pidFilePath")) {
+                serverGlobalParams.pidFile = params["processManagement.pidFilePath"].as<string>();
+            }
 
-    if (params.count("processManagement.timeZoneInfo")) {
-        serverGlobalParams.timeZoneInfoPath = params["processManagement.timeZoneInfo"].as<string>();
-    }
+            if (params.count("processManagement.timeZoneInfo")) {
+                serverGlobalParams.timeZoneInfoPath =
+                    params["processManagement.timeZoneInfo"].as<string>();
+            }
 
-    if (!params.count("security.clusterAuthMode") && params.count("security.keyFile")) {
-        serverGlobalParams.clusterAuthMode.store(ServerGlobalParams::ClusterAuthMode_keyFile);
-    }
-    int clusterAuthMode = serverGlobalParams.clusterAuthMode.load();
-    if (serverGlobalParams.transitionToAuth &&
-        (clusterAuthMode != ServerGlobalParams::ClusterAuthMode_keyFile &&
-         clusterAuthMode != ServerGlobalParams::ClusterAuthMode_x509)) {
-        return Status(ErrorCodes::BadValue,
-                      "--transitionToAuth must be used with keyFile or x509 authentication");
-    }
+            if (!params.count("security.clusterAuthMode") && params.count("security.keyFile")) {
+                serverGlobalParams.clusterAuthMode.store(
+                    ServerGlobalParams::ClusterAuthMode_keyFile);
+            }
+            int clusterAuthMode = serverGlobalParams.clusterAuthMode.load();
+            if (serverGlobalParams.transitionToAuth &&
+                (clusterAuthMode != ServerGlobalParams::ClusterAuthMode_keyFile &&
+                 clusterAuthMode != ServerGlobalParams::ClusterAuthMode_x509)) {
+                return Status(
+                    ErrorCodes::BadValue,
+                    "--transitionToAuth must be used with keyFile or x509 authentication");
+            }
 
 #ifdef MONGO_CONFIG_SSL
-    ret = storeSSLServerOptions(params);
-    if (!ret.isOK()) {
-        return ret;
-    }
+            ret = storeSSLServerOptions(params);
+            if (!ret.isOK()) {
+                return ret;
+            }
 #endif
 
-    ret = storeMessageCompressionOptions(params);
-    if (!ret.isOK()) {
-        return ret;
-    }
+            ret = storeMessageCompressionOptions(params);
+            if (!ret.isOK()) {
+                return ret;
+            }
 
-    return Status::OK();
-}
+            return Status::OK();
+        }
 
-}  // namespace mongo
+    }  // namespace mongo
