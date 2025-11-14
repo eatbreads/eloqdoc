@@ -580,7 +580,10 @@ std::vector<std::string> EloqKVEngine::getAllIdents(OperationContext* opCtx) con
 void EloqKVEngine::cleanShutdown() {
     MONGO_LOG(0) << "EloqKVEngine::cleanShutdown";
 #ifndef ELOQ_MODULE_ENABLED
-    _txService->Shutdown();
+    auto* data_substrate = DataSubstrate::GetGlobal();
+    if (data_substrate != nullptr) {
+        data_substrate->Shutdown();
+    }
 #else
     // 1.When merged into ConvergedDB, `_txService->Shutdown()` should be moved out.
     // 2.eloq::unregister_module is not allowed to called in a brpc-worker thread.
