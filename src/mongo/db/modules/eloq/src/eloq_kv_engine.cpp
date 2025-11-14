@@ -579,16 +579,6 @@ std::vector<std::string> EloqKVEngine::getAllIdents(OperationContext* opCtx) con
 
 void EloqKVEngine::cleanShutdown() {
     MONGO_LOG(0) << "EloqKVEngine::cleanShutdown";
-
-    auto* data_substrate = DataSubstrate::GetGlobal();
-    if (data_substrate != nullptr) {
-        data_substrate->Shutdown();
-    }
-    _txService = nullptr;
-    _logServer = nullptr;
-}
-
-void EloqKVEngine::shutdownTxService() {
 #ifndef ELOQ_MODULE_ENABLED
     _txService->Shutdown();
 #else
@@ -599,7 +589,10 @@ void EloqKVEngine::shutdownTxService() {
     coro::ConditionVariable cv;
     std::thread thd([this, &done, &mux, &cv]() {
         std::unique_lock lk(mux);
-        _txService->Shutdown();
+        auto* data_substrate = DataSubstrate::GetGlobal();
+        if (data_substrate != nullptr) {
+            data_substrate->Shutdown();
+        }
         done = true;
         cv.notify_one();
     });
@@ -607,6 +600,8 @@ void EloqKVEngine::shutdownTxService() {
     std::unique_lock lk(mux);
     cv.wait(lk, [&done]() { return done; });
 #endif
+    _txService = nullptr;
+    _logServer = nullptr;
 }
 
 void EloqKVEngine::setJournalListener(JournalListener* jl) {

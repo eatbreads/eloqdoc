@@ -194,8 +194,6 @@ public:
 private:
     bool InitMetricsRegistry();
 
-    void shutdownTxService();
-
 private:
     txservice::TxService* _txService{nullptr};
     txlog::LogServer* _logServer{nullptr};
