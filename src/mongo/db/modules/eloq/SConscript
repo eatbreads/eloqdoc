@@ -54,7 +54,7 @@ DATA_STORE_TYPE_ELOQSTORE     = 5
 ROCKSDB_CLOUD_FS_TYPE_S3  = 1
 ROCKSDB_CLOUD_FS_TYPE_GCS = 2
 
-env.Append(CPPDEFINES=[" ELOQ_MODULE_ELOQDOC"])
+env.Append(CPPDEFINES=["ELOQ_MODULE_ELOQDOC"])
 
 # Read from environment variable (default to ROCKSDB_CLOUD if not set)
 data_store_type_str = os.environ.get("WITH_DATA_STORE", "ELOQDSS_ROCKSDB_CLOUD_S3").upper()
@@ -223,7 +223,7 @@ env.Append(LIBPATH=["$ELOQ_ENGINE_ROOT/build/data_substrate"])
 # Ensure the linker can find CMake-produced shared libs and link them explicitly.
 # CMake installs txservice/logservice/datastore/eloq_metrics into DEST_DIR/lib.
 dest_dir = os.environ.get("DEST_DIR", "")
-print("dest_dir: ", dest_dir) 
+print("dest_dir: ", dest_dir)
 dest_lib_dir = os.path.join(dest_dir, "lib") if dest_dir else None
 if dest_lib_dir and os.path.isdir(dest_lib_dir):
     env.Append(LIBPATH=[dest_lib_dir])
