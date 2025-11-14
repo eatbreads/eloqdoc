@@ -220,7 +220,7 @@ try_connect() {
 
 run_jstests() {
       echo "run jstests"
-      env PATH=$PREFIX/bin:$PATH \
+      env LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} PATH=$PREFIX/bin:$PATH \
       python2 scripts/buildscripts/resmoke.py --mongo=$PREFIX/bin/eloqdoc-cli --suites=eloq_basic,eloq_core --shellPort=27017 --continueOnFailure
 }
 
