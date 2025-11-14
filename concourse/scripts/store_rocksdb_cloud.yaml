@@ -1,7 +1,7 @@
 systemLog:
   verbosity: 0
   destination: file
-  path: "/home/tianxj/workspace/eloqdata/eloqdoc/install/log/eloqdoc.log"
+  path: "/home/eloq/workspace/mongo/install/log/eloqdoc.log"
   component:
     ftdc:
       verbosity: 0
@@ -11,7 +11,7 @@ net:
   serviceExecutor: "adaptive"
   adaptiveThreadNum: 1
 storage:
-  dbPath: "/home/tianxj/workspace/eloqdata/eloqdoc/install/data/"
+  dbPath: "/home/eloq/workspace/mongo/install/data/"
   engine: "eloq"
   eloq:
     txService:

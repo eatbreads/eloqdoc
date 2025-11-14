@@ -184,3 +184,5 @@ config/*/*.conf
 .pre-commit-config.yaml
 install
 data
+pyvenv
+venv
