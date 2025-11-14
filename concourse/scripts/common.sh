@@ -129,7 +129,7 @@ compile_and_install_ent() {
       python2 scripts/buildscripts/scons.py MONGO_VERSION=4.0.3 \
             VARIANT_DIR=Debug \
             CXXFLAGS="-Wno-nonnull -Wno-class-memaccess -Wno-interference-size -Wno-redundant-move" \
-	    CPPDEFINES="ELOQ_MODULE_ENABLED EXT_TX_PROC_ENABLED" \
+            CPPDEFINES="ELOQ_MODULE_ENABLED EXT_TX_PROC_ENABLED" \
             --build-dir=#build \
             --prefix="$PREFIX" \
             --dbg=on \
@@ -178,16 +178,16 @@ launch_eloqdoc_fast() {
       mkdir -p "$PREFIX/log" "$PREFIX/data"
       nohup env LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} $PREFIX/bin/eloqdoc \
             --config=./concourse/scripts/store_rocksdb_cloud.yaml \
-	    --data_substrate_config=./concourse/scripts/data_substrate.cnf \
+            --data_substrate_config=./concourse/scripts/data_substrate.cnf \
             --rocksdb_cloud_bucket_name="$bucket_name" \
             --rocksdb_cloud_bucket_prefix="$bucket_prefix" \
-	    --rocksdb_cloud_object_path="dss" \
-	    --rocksdb_cloud_s3_endpoint_url=${MINIO_ENDPOINT} \
+            --rocksdb_cloud_object_path="dss" \
+            --rocksdb_cloud_s3_endpoint_url=${MINIO_ENDPOINT} \
             --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
             --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
-	    --txlog_rocksdb_cloud_object_path="txlog" \
-	    --txlog_rocksdb_cloud_endpoint_url=${MINIO_ENDPOINT} \
-	    --enable_wal=false \
+            --txlog_rocksdb_cloud_object_path="txlog" \
+            --txlog_rocksdb_cloud_endpoint_url=${MINIO_ENDPOINT} \
+            --enable_wal=false \
             &>$PREFIX/log/eloqdoc.out &
 }
 
