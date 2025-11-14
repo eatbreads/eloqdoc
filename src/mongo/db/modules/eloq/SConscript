@@ -209,7 +209,7 @@ elif data_store_type == DATA_STORE_TYPE_ROCKSDB:
 elif data_store_type == DATA_STORE_TYPE_ELOQSTORE:
    store_deps = []
 
-eloq_dependencies = base_deps + store_deps
+eloq_dependencies = [lib for lib in (base_deps + store_deps) if lib]
 
 absl_lib_root = "$ELOQ_ENGINE_ROOT/build/data_substrate/tx_service/abseil-cpp"
 env.PrependUnique(
