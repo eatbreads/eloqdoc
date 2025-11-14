@@ -152,7 +152,7 @@ launch_eloqdoc() {
       local bucket_prefix="$2"
       echo "launch eloqdoc with bucket name: $bucket_name, bucket prefix: $bucket_prefix"
       mkdir -p "$PREFIX/log" "$PREFIX/data"
-      nohup LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} $PREFIX/bin/eloqdoc \
+      nohup env LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} $PREFIX/bin/eloqdoc \
             --config=./concourse/scripts/store_rocksdb_cloud.yaml \
 	    --data_substrate_config=./concourse/scripts/data_substrate.cnf \
             --rocksdb_cloud_bucket_name="$bucket_name" \
@@ -176,7 +176,7 @@ launch_eloqdoc_fast() {
       local bucket_prefix="$2"
       echo "launch eloqdoc with bucket name: $bucket_name, bucket prefix: $bucket_prefix"
       mkdir -p "$PREFIX/log" "$PREFIX/data"
-      nohup LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} $PREFIX/bin/eloqdoc \
+      nohup env LD_LIBRARY_PATH=$PREFIX/lib/:${LD_LIBRARY_PATH} $PREFIX/bin/eloqdoc \
             --config=./concourse/scripts/store_rocksdb_cloud.yaml \
 	    --data_substrate_config=./concourse/scripts/data_substrate.cnf \
             --rocksdb_cloud_bucket_name="$bucket_name" \
