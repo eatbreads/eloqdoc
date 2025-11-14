@@ -246,8 +246,12 @@ MongoTableSchema::MongoTableSchema(const txservice::TableName& table_name,
     key_schemas_ts.Deserialize(key_schemas_ts_str_.data(), ts_offset);
 
     size_t offset = 0;
-    auto* storeHandler = DataSubstrate::GetGlobal()->GetStoreHandler();
+    auto* ds = DataSubstrate::GetGlobal();
+    invariant(ds != nullptr);
+    auto* storeHandler = ds->GetStoreHandler();
+    invariant(storeHandler != nullptr);
     kv_info_ = storeHandler->DeserializeKVCatalogInfo(kv_info_str_, offset);
+    invariant(kv_info_.get() != nullptr);
 
     invariant(!meta_data_str_.empty());
     meta_data_obj_ = mongo::BSONObj(meta_data_str_.c_str()).getOwned();
@@ -303,7 +307,10 @@ txservice::TableSchema::uptr MongoTableSchema::Clone() const {
 
 void MongoTableSchema::SetKVCatalogInfo(const std::string& kv_info) {
     size_t offset = 0;
-    auto* storeHandler = DataSubstrate::GetGlobal()->GetStoreHandler();
+    auto* ds = DataSubstrate::GetGlobal();
+    invariant(ds != nullptr);
+    auto* storeHandler = ds->GetStoreHandler();
+    invariant(storeHandler != nullptr);
     kv_info_ = storeHandler->DeserializeKVCatalogInfo(kv_info, offset);
 }
 

@@ -193,6 +193,7 @@ boost::optional<Timestamp> EloqKVEngine::getRecoveryTimestamp() const {
 
 RecoveryUnit* EloqKVEngine::newRecoveryUnit() {
     MONGO_LOG(1) << "EloqKVEngine::newRecoveryUnit";
+    invariant(_txService != nullptr);
     return new EloqRecoveryUnit(_txService);
 }
 
@@ -579,7 +580,10 @@ std::vector<std::string> EloqKVEngine::getAllIdents(OperationContext* opCtx) con
 void EloqKVEngine::cleanShutdown() {
     MONGO_LOG(0) << "EloqKVEngine::cleanShutdown";
 
-    DataSubstrate::GetGlobal()->Shutdown();
+    auto* data_substrate = DataSubstrate::GetGlobal();
+    if (data_substrate != nullptr) {
+        data_substrate->Shutdown();
+    }
     _txService = nullptr;
     _logServer = nullptr;
 }

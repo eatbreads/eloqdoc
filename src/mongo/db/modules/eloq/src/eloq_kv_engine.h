@@ -63,6 +63,11 @@ class EloqKVEngine final : public KVEngine {
 public:
     explicit EloqKVEngine(const std::string& path);
 
+    EloqKVEngine(const EloqKVEngine&) = delete;
+    EloqKVEngine& operator=(const EloqKVEngine&) = delete;
+    EloqKVEngine(EloqKVEngine&&) = delete;
+    EloqKVEngine& operator=(EloqKVEngine&&) = delete;
+
     ~EloqKVEngine() override;
 
     // void waitBootstrap();
@@ -192,8 +197,8 @@ private:
     void shutdownTxService();
 
 private:
-    txservice::TxService* _txService;
-    txlog::LogServer* _logServer;
+    txservice::TxService* _txService{nullptr};
+    txlog::LogServer* _logServer{nullptr};
     std::string _dbPath;
     std::unique_ptr<metrics::MetricsRegistry> _metricsRegistry{nullptr};
 };

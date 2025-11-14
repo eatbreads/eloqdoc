@@ -516,8 +516,12 @@ Status EloqRecoveryUnit::createTable(const txservice::TableName& tableName,
 
     std::string schemaImage{EloqDS::SerializeSchemaImage(std::string{metadata}, "", "")};
     Eloq::MongoTableSchema tempSchema(tableName, schemaImage, 0);
-    auto* storeHandler = DataSubstrate::GetGlobal()->GetStoreHandler();
+    auto* ds = DataSubstrate::GetGlobal();
+    invariant(ds != nullptr);
+    auto* storeHandler = ds->GetStoreHandler();
+    invariant(storeHandler != nullptr);
     std::string kvInfo = storeHandler->CreateKVCatalogInfo(&tempSchema);
+    invariant(!kvInfo.empty());  // or uassert with InternalError if emptiness can signify failure
     std::string emptyImage{""};
     std::string newImage = EloqDS::SerializeSchemaImage(std::string{metadata}, kvInfo, "");
     const CoroutineFunctors& coro = Client::getCurrent()->coroutineFunctors();
