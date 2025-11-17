@@ -34,7 +34,7 @@ update_config_template() {
 }
 
 pushd $WORKSPACE/eloqdoc_src/concourse/
-update_config_template .scripts/data_substrate.cnf
+update_config_template ./scripts/data_substrate.cnf
 
 update_config_template ./artifact/ELOQDSS_ROCKSDB/data_substrate.cnf
 
