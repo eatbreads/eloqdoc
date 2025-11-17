@@ -8,7 +8,40 @@ pyenv global 2.7.18
 pip3 install minio
 
 # Setup Minio mc Client command
-mc alias set minio_server ${MINIO_ENDPOINT} ${MINIO_ACCESS_KEY} ${MINIO_SECRET_KEY}
+mc alias set minio_server ${ELOQ_AWS_S3_ENDPOINT_URL} ${ELOQ_AWS_ACCESS_KEY_ID} ${ELOQ_AWS_SECRET_KEY}
+
+# Helper function to update config template file with required settings
+update_config_template() {
+    local config_file="$1"
+    if [ ! -f "$config_file" ]; then
+        echo "Warning: Config file $config_file does not exist"
+        return 1
+    fi
+
+    # ak/sk
+    sed -i "s/aws_access_key_id.*=.\+/aws_access_key_id=${ELOQ_AWS_ACCESS_KEY_ID}/g" "$config_file"
+    sed -i "s/aws_secret_key.*=.\+/aws_secret_key=${ELOQ_AWS_SECRET_KEY}/g" "$config_file"
+    # OSS settings
+    sed -i "s|rocksdb_cloud_s3_endpoint_url.*=.\+|rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL}|g" "$config_file"
+    sed -i "s|txlog_rocksdb_cloud_s3_endpoint_url.*=.\+|eloq_txlog_rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL}|g" "$config_file"
+    sed -i "s/rocksdb_cloud_bucket_name.*=.\+/rocksdb_cloud_bucket_name=${bucket_name}/g" "$config_file"
+    sed -i "s/txlog_rocksdb_cloud_bucket_name.*=.\+/txlog_rocksdb_cloud_bucket_name=${bucket_name}/g" "$config_file"
+    sed -i "s/rocksdb_cloud_region.*=.\+/rocksdb_cloud_region=${ELOQ_AWS_REGION}/g" "$config_file"
+    sed -i "s/txlog_rocksdb_cloud_region.*=.\+/txlog_rocksdb_cloud_region=${ELOQ_AWS_REGION}/g" "$config_file"
+    sed -i "s/rocksdb_cloud_bucket_prefix.*=.\+/rocksdb_cloud_bucket_prefix=dss-/g" "$config_file"
+    sed -i "s/txlog_rocksdb_cloud_bucket_prefix.*=.\+/eloq_txlog_rocksdb_cloud_bucket_prefix=txlog-/g" "$config_file"
+    sed -i "s|eloq_dss_config_file_path.*=.\+|eloq_dss_config_file_path=${WORKSPACE}/eloqsql_src/concourse/scripts/dss_config.example.ini|g" "$config_file"
+}
+
+update_config_template ./data_substrate.cnf
+
+update_config_template ./artifact/ELOQDSS_ROCKSDB/data_substrate.cnf
+
+# Update all data_substrate*.cnf files in ELOQDSS_ROCKSDB_CLOUD_S3
+update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate.cnf
+update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_a.cnf
+update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_b.cnf
+update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_c.cnf
 
 # Make coredump dir writable.
 if [ ! -d "/var/crash" ]; then sudo mkdir -p /var/crash; fi
@@ -158,11 +191,11 @@ launch_eloqdoc() {
             --rocksdb_cloud_bucket_name="$bucket_name" \
             --rocksdb_cloud_bucket_prefix="$bucket_prefix" \
 	    --rocksdb_cloud_object_path="dss" \
-	    --rocksdb_cloud_s3_endpoint_url=${MINIO_ENDPOINT} \
+	    --rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
             --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
 	    --txlog_rocksdb_cloud_object_path="txlog" \
-	    --txlog_rocksdb_cloud_endpoint_url=${MINIO_ENDPOINT} \
+	    --txlog_rocksdb_cloud_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             &>$PREFIX/log/eloqdoc.out &
 }
 
@@ -182,11 +215,11 @@ launch_eloqdoc_fast() {
             --rocksdb_cloud_bucket_name="$bucket_name" \
             --rocksdb_cloud_bucket_prefix="$bucket_prefix" \
             --rocksdb_cloud_object_path="dss" \
-            --rocksdb_cloud_s3_endpoint_url=${MINIO_ENDPOINT} \
+            --rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
             --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
             --txlog_rocksdb_cloud_object_path="txlog" \
-            --txlog_rocksdb_cloud_endpoint_url=${MINIO_ENDPOINT} \
+            --txlog_rocksdb_cloud_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             --enable_wal=false \
             &>$PREFIX/log/eloqdoc.out &
 }
