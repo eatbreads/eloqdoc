@@ -24,12 +24,12 @@ update_config_template() {
     # OSS settings
     sed -i "s|rocksdb_cloud_s3_endpoint_url.*=.\+|rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL}|g" "$config_file"
     sed -i "s|txlog_rocksdb_cloud_s3_endpoint_url.*=.\+|eloq_txlog_rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL}|g" "$config_file"
-    sed -i "s/rocksdb_cloud_bucket_name.*=.\+/rocksdb_cloud_bucket_name=${bucket_name}/g" "$config_file"
-    sed -i "s/txlog_rocksdb_cloud_bucket_name.*=.\+/txlog_rocksdb_cloud_bucket_name=${bucket_name}/g" "$config_file"
+    sed -i "s/rocksdb_cloud_bucket_name.*=.\+/rocksdb_cloud_bucket_name=${BUCKET_NAME}/g" "$config_file"
+    sed -i "s/txlog_rocksdb_cloud_bucket_name.*=.\+/txlog_rocksdb_cloud_bucket_name=${BUCKET_NAME}/g" "$config_file"
     sed -i "s/rocksdb_cloud_region.*=.\+/rocksdb_cloud_region=${ELOQ_AWS_REGION}/g" "$config_file"
     sed -i "s/txlog_rocksdb_cloud_region.*=.\+/txlog_rocksdb_cloud_region=${ELOQ_AWS_REGION}/g" "$config_file"
-    sed -i "s/rocksdb_cloud_bucket_prefix.*=.\+/rocksdb_cloud_bucket_prefix=dss-/g" "$config_file"
-    sed -i "s/txlog_rocksdb_cloud_bucket_prefix.*=.\+/eloq_txlog_rocksdb_cloud_bucket_prefix=txlog-/g" "$config_file"
+    sed -i "s/rocksdb_cloud_bucket_prefix.*=.\+/rocksdb_cloud_bucket_prefix=${BUCKET_PREFIX}/g" "$config_file"
+    sed -i "s/txlog_rocksdb_cloud_bucket_prefix.*=.\+/eloq_txlog_rocksdb_cloud_bucket_prefix=${BUCKET_PREFIX}/g" "$config_file"
     sed -i "s|eloq_dss_config_file_path.*=.\+|eloq_dss_config_file_path=${WORKSPACE}/eloqsql_src/concourse/scripts/dss_config.example.ini|g" "$config_file"
 }
 
@@ -197,7 +197,7 @@ launch_eloqdoc() {
             --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
             --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
 	    --txlog_rocksdb_cloud_object_path="txlog" \
-	    --txlog_rocksdb_cloud_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
+	    --txlog_rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             &>$PREFIX/log/eloqdoc.out &
 }
 
@@ -221,7 +221,7 @@ launch_eloqdoc_fast() {
             --txlog_rocksdb_cloud_bucket_name="$bucket_name" \
             --txlog_rocksdb_cloud_bucket_prefix="$bucket_prefix" \
             --txlog_rocksdb_cloud_object_path="txlog" \
-            --txlog_rocksdb_cloud_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
+            --txlog_rocksdb_cloud_s3_endpoint_url=${ELOQ_AWS_S3_ENDPOINT_URL} \
             --enable_wal=false \
             &>$PREFIX/log/eloqdoc.out &
 }
