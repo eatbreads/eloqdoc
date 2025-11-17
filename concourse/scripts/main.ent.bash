@@ -31,7 +31,7 @@ cd mongo
 git submodule sync
 git submodule update --init --recursive
 
-cd src/mongo/db/modules/eloq
+cd src/mongo/db/modules/eloq/data_substrate
 ln -s $WORKSPACE/eloq_logservice_src eloq_log_service
 
 pushd tx_service
@@ -41,8 +41,10 @@ popd
 cd /home/$current_user/workspace/mongo
 
 # Generate unique bucket names for main test
-BUCKET_NAME="main-test"
+timestamp=$(($(date +%s%N)/1000000))
+BUCKET_NAME="pr-test-${timestamp}"
 BUCKET_PREFIX="rocksdb-cloud-"
+echo "bucket_name is ${BUCKET_PREFIX}${BUCKET_NAME}"
 DATA_DIR="/home/eloq/workspace/mongo/install/data"
 
 compile_and_install_ent
