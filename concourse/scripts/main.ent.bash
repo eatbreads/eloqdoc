@@ -6,8 +6,6 @@ export CASS_HOST=$CASS_HOST
 
 export PREFIX="/home/eloq/workspace/mongo/install"
 
-source "$(dirname "$0")/common.sh"
-
 CWDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ls
 
@@ -23,6 +21,9 @@ if [ ! -d "/var/crash" ]; then sudo mkdir -p /var/crash; fi
 sudo chmod 777 /var/crash
 
 sudo chown -R $current_user /home/$current_user/workspace
+
+source "$(dirname "$0")/common.sh"
+
 cd /home/$current_user/workspace
 ln -s $WORKSPACE/py_tpcc_src py-tpcc
 ln -s $WORKSPACE/eloqdoc_src mongo
