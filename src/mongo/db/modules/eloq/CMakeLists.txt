@@ -53,26 +53,3 @@ endif()
 
 # --- Include build system modules ---
 add_subdirectory(data_substrate)
-
-# --- Installation Rules ---
-# install tx_service lib and includes files
-install(TARGETS txservice
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib)
-
-install(TARGETS logservice
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib)
-
-install(TARGETS data_substrate
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib)
-
-install(TARGETS eloq-metrics
-        ARCHIVE DESTINATION lib
-        LIBRARY DESTINATION lib)
-
-if(FORK_HM_PROCESS) # Only install host_manager if it's built
-    install(TARGETS host_manager
-            RUNTIME DESTINATION bin)
-endif()
