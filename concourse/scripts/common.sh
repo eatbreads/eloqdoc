@@ -33,7 +33,8 @@ update_config_template() {
     sed -i "s|eloq_dss_config_file_path.*=.\+|eloq_dss_config_file_path=${WORKSPACE}/eloqsql_src/concourse/scripts/dss_config.example.ini|g" "$config_file"
 }
 
-update_config_template ./data_substrate.cnf
+pushd $WORKSPACE/eloqdoc_src/concourse/
+update_config_template .scripts/data_substrate.cnf
 
 update_config_template ./artifact/ELOQDSS_ROCKSDB/data_substrate.cnf
 
@@ -42,6 +43,7 @@ update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate.cnf
 update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_a.cnf
 update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_b.cnf
 update_config_template ./artifact/ELOQDSS_ROCKSDB_CLOUD_S3/data_substrate_cluster_c.cnf
+popd
 
 # Make coredump dir writable.
 if [ ! -d "/var/crash" ]; then sudo mkdir -p /var/crash; fi
