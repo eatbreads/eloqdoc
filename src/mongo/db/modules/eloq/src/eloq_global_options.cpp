@@ -574,6 +574,12 @@ Status EloqGlobalOptions::add(moe::OptionSection* options) {
                            moe::Bool,
                            "EloqStore enable compression")
         .setDefault(moe::Value(false));
+    eloqOptions
+        .addOptionChaining("storage.eloq.storage.eloqStorePrewarmCloudCache",
+                           "eloqEloqStorePrewarmCloudCache",
+                           moe::Bool,
+                           "EloqStore prewarm cloud cache on startup")
+        .setDefault(moe::Value(false));
 
     // Options for metrics
     eloqOptions
@@ -1069,6 +1075,10 @@ Status EloqGlobalOptions::store(const moe::Environment& params,
     if (params.count("storage.eloq.storage.eloqStoreEnableCompression")) {
         eloqGlobalOptions.eloqStoreEnableCompression =
             params["storage.eloq.storage.eloqStoreEnableCompression"].as<bool>();
+    }
+    if (params.count("storage.eloq.storage.eloqStorePrewarmCloudCache")) {
+        eloqGlobalOptions.eloqStorePrewarmCloudCache =
+            params["storage.eloq.storage.eloqStorePrewarmCloudCache"].as<bool>();
     }
 
     // Parse metrics options

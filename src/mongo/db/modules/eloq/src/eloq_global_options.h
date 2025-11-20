@@ -122,6 +122,7 @@ public:
     bool eloqStoreSkipVerifyChecksum{false};
     bool eloqStoreDataAppendMode{false};
     bool eloqStoreEnableCompression{false};
+    bool eloqStorePrewarmCloudCache{false};
     uint32_t eloqStoreWorkerCount{1};
     uint32_t eloqStoreOpenFilesLimit{1024};
     uint32_t eloqStoreDataPageRestartInterval{16};

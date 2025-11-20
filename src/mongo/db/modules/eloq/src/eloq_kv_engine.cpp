@@ -249,6 +249,9 @@ static void configureEloqStore(EloqDS::EloqStoreConfig& eloq_store_config,
 
     eloq_store_config.eloqstore_configs_.enable_compression =
         eloqGlobalOptions.eloqStoreEnableCompression;
+
+    eloq_store_config.eloqstore_configs_.prewarm_cloud_cache =
+        eloqGlobalOptions.eloqStorePrewarmCloudCache;
 }
 #endif
 
