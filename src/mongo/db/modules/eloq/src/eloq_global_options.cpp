@@ -426,6 +426,12 @@ Status EloqGlobalOptions::add(moe::OptionSection* options) {
                            "EloqStore cloud store path (Disable cloud store if empty)")
         .setDefault(moe::Value(""));
     eloqOptions
+        .addOptionChaining("storage.eloq.storage.eloqStoreCloudStoreDaemonPorts",
+                           "eloqEloqStoreCloudStoreDaemonPorts",
+                           moe::String,
+                           "Comma-separated cloud store daemon ports, e.g. \"5572,5573,5574\"")
+        .setDefault(moe::Value(""));
+    eloqOptions
         .addOptionChaining("storage.eloq.storage.eloqStoreDataPageRestartInterval",
                            "eloqEloqStoreDataPageRestartInterval",
                            moe::Int,
@@ -987,6 +993,10 @@ Status EloqGlobalOptions::store(const moe::Environment& params,
     if (params.count("storage.eloq.storage.eloqStoreCloudStorePath")) {
         eloqGlobalOptions.eloqStoreCloudStorePath =
             params["storage.eloq.storage.eloqStoreCloudStorePath"].as<std::string>();
+    }
+    if (params.count("storage.eloq.storage.eloqStoreCloudStoreDaemonPorts")) {
+        eloqGlobalOptions.eloqStoreCloudStoreDaemonPorts =
+            params["storage.eloq.storage.eloqStoreCloudStoreDaemonPorts"].as<std::string>();
     }
     if (params.count("storage.eloq.storage.eloqStoreDataPageRestartInterval")) {
         eloqGlobalOptions.eloqStoreDataPageRestartInterval =

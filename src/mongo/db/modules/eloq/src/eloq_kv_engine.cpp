@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include <sstream>
 
 #include "mongo/base/error_codes.h"
 #include "mongo/db/auth/authorization_manager.h"
@@ -184,6 +185,20 @@ static void configureEloqStore(EloqDS::EloqStoreConfig& eloq_store_config,
 
     if (!eloq_store_config.eloqstore_configs_.cloud_store_path.empty()) {
         log() << "EloqStore cloud store enabled";
+    }
+
+    if (!eloqGlobalOptions.eloqStoreCloudStoreDaemonPorts.empty()) {
+        std::vector<std::string> ports;
+        std::string token;
+        std::istringstream tokenStream(eloqGlobalOptions.eloqStoreCloudStoreDaemonPorts);
+        while (std::getline(tokenStream, token, ',')) {
+            if (!token.empty()) {
+                ports.emplace_back(token);
+            }
+        }
+        if (!ports.empty()) {
+            eloq_store_config.eloqstore_configs_.cloud_store_daemon_ports = std::move(ports);
+        }
     }
 
     eloq_store_config.eloqstore_configs_.data_page_restart_interval =

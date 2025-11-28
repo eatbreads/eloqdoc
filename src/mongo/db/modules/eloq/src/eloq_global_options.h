@@ -143,6 +143,7 @@ public:
     uint32_t eloqStorePagesPerFileShift{11};
     uint32_t eloqStoreOverflowPointers{16};
     std::string eloqStoreCloudStorePath;
+    std::string eloqStoreCloudStoreDaemonPorts;
     std::string eloqStoreLocalSpaceLimit;
     std::string eloqStoreStoragePathList;
     std::string eloqStoreIndexBufferPoolSize;
